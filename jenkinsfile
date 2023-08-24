@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('clonning.....') {
+            steps {
+                
+                checkout([$class: 'GitSCM',
+                        branches: [[name: '*/main']], // Specify the branch to clone
+                        userRemoteConfigs: [[url: 'https://github.com/harshaeli/website.git']]])
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def dockerImage = docker.build("harshaelii/mywebsite:${env.BUILD_NUMBER}")
+                }
+            }
+        }
+    
+    
+        stage('Push to Docker Hub') {
+                steps {
+                    script {
+                        withCredentials([string(credentialsId: 'dockerhub-registry', variable: 'dockerhubregistry')]) {
+                            sh "docker login -u harshaelii -p ${dockerhubregistry}"
+                            sh  "docker push harshaelii/mywebsite:${env.BUILD_NUMBER}"
+                        }
+                        
+                    }
+                }
+        }
+}
+}
