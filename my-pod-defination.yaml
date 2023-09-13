@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: website-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: website
+  template:
+    metadata:
+      labels:
+        app: website
+    spec:
+      containers:
+        - name: web-container
+          image: harshaelii/mywebsite:$(IMAGE_TAG)
+          ports:
+            - containerPort: 80
+          env:
+            - name: IMAGE_TAG
+              valueFrom:
+                configMapKeyRef:
+                  name: my-app-config
+                  key: IMAGE_TAG

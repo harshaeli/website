@@ -18,8 +18,51 @@ pipeline {
                 }
             }
         }
-    
-    
+        stage('Push to Docker Hub') {
+                steps {
+                    script {
+                        withCredentials([string(credentialsId: 'dockerhub-registry', variable: 'dockerhubregistry')]) {
+                            sh "docker login -u harshaelii -p ${dockerhubregistry}"
+                            sh  "docker push harshaelii/mywebsite:V${env.BUILD_NUMBER}"
+                        }
+                        
+                    }
+                }
+        }
+        stage('Deploy Pod') {
+            steps {
+                sh 'kubectl apply -f my-pod-definition.yaml'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'kubectl get pods'
+            }
+}
+    }
+}
+
+
+pipeline {
+    agent any
+
+    stages {
+        stage('clonning.....') {
+            steps {
+                
+                checkout([$class: 'GitSCM',
+                        branches: [[name: '*/main']], // Specify the branch to clone
+                        userRemoteConfigs: [[url: 'https://github.com/harshaeli/website.git']]])
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t harshaelii/mywebsite:${env.BUILD_NUMBER} ."
+                }
+            }
+        }
         stage('Push to Docker Hub') {
                 steps {
                     script {
@@ -31,5 +74,6 @@ pipeline {
                     }
                 }
         }
+    
 }
-}
+    }
