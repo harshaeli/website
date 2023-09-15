@@ -17,9 +17,9 @@ spec:
           image: harshaelii/mywebsite:15
           ports:
             - containerPort: 80
-          env:
-            - name: IMAGE_TAG
-              valueFrom:
-                configMapKeyRef:
-                  name: my-app-config
-                  key: IMAGE_TAG
+          # env:
+          #   - name: IMAGE_TAG
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: my-app-config
+          #         key: IMAGE_TAG
